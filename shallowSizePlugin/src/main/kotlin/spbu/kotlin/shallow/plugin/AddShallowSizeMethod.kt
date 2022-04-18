@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.ir.types.isUnit
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 const val DEFAULT_SIZE = 8
 const val BOOLEAN_SIZE = 1
@@ -48,6 +49,8 @@ fun IrType.byteSize() = when {
         else -> DEFAULT_SIZE
 }
 
+fun IrFunction.noFormalParameters() = this.valueParameters.isEmpty()
+
 val Meta.GenerateShallowSize: CliPlugin
     get() = "Generate shallowSize method" {
         meta(
@@ -66,6 +69,7 @@ val Meta.GenerateShallowSize: CliPlugin
                 if (clazz.isData) {
                     val function = clazz.functions.find { it.name.toString() == FUNCTION_NAME }
                     require(function != null) { "shallowSize plugin cannot create a function body" }
+                    require(function.noFormalParameters()) {"$FUNCTION_NAME has formal parameters"}
 
                     val builder = DeclarationIrBuilder(pluginContext, function.symbol)
                     val shallowSize = clazz.properties.map { it.backingField?.type?.byteSize() ?: 0 }.sum()
