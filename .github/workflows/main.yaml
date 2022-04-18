@@ -14,3 +14,24 @@ jobs:
 
       - name: Run detekt
         run: ./gradlew detekt
+
+      - name: Upload detekt artifact from shallowSizePlugin
+        uses: actions/upload-artifact@v2
+        with:
+            name: DetektReportFromShallowSizePlugin
+            path: shallowSizePlugin/build/reports/detekt/detekt.txt
+            if-no-files-found: error
+
+      - name: Upload detekt artifact from shallowSizePluginTest
+        uses: actions/upload-artifact@v2
+        with:
+          name: DetektReportFromShallowSizePluginTest
+          path: shallowSizePluginTest/build/reports/detekt/detekt.txt
+          if-no-files-found: error
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: TestReport
+          path: shallowSizePluginTest/build/test-results/junit-platform
+          if-no-files-found: error

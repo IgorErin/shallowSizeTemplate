@@ -30,9 +30,9 @@ import org.jetbrains.kotlin.ir.util.properties
 const val DEFAULT_SIZE = 8
 const val BOOLEAN_SIZE = 1
 const val UNIT_SIZE = 0
+const val FUNCTION_NAME = "shallowSize"
 
-fun IrType.byteSize(): Int {
-    return when {
+fun IrType.byteSize() = when {
         this.isULong() -> ULong.SIZE_BYTES
         this.isDouble() -> Double.SIZE_BYTES
         this.isByte() -> Byte.SIZE_BYTES
@@ -46,7 +46,6 @@ fun IrType.byteSize(): Int {
         this.isBoolean() -> BOOLEAN_SIZE
         this.isUnit() -> UNIT_SIZE
         else -> DEFAULT_SIZE
-    }
 }
 
 val Meta.GenerateShallowSize: CliPlugin
@@ -58,21 +57,21 @@ val Meta.GenerateShallowSize: CliPlugin
                     newDeclaration = """
                         |$`@annotations` $modality $visibility $kind $name $`(typeParameters)` $`(params)` $superTypes {
                         |   $body
-                        |   fun shallowSize(): Int = TODO("shallowSize plugin did not generate the function body") 
+                        |   fun $FUNCTION_NAME(): Int = TODO("shallowSize plugin did not generate the function body") 
                         |}
                     """.trimMargin().`class`
                 )
             },
             irClass { clazz ->
                 if (clazz.isData) {
-                    val function = clazz.functions.find { it.name.toString() == "shallowSize" }
+                    val function = clazz.functions.find { it.name.toString() == FUNCTION_NAME }
                     require(function != null) { "shallowSize plugin cannot create a function body" }
 
                     val builder = DeclarationIrBuilder(pluginContext, function.symbol)
-                    val sum = clazz.properties.map { it.backingField?.type?.byteSize() ?: 0 }.sum()
+                    val shallowSize = clazz.properties.map { it.backingField?.type?.byteSize() ?: 0 }.sum()
 
                     function.body = builder.irBlockBody {
-                        +irReturn(irInt(sum))
+                        +irReturn(irInt(shallowSize))
                     }
                 }
                 clazz
