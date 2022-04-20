@@ -49,7 +49,7 @@ fun IrType.byteSize() = when {
         else -> DEFAULT_SIZE
 }
 
-fun IrFunction.noFormalParameters() = this.valueParameters.isEmpty()
+fun IrFunction.isPluginFunWithNoParameters() = this.valueParameters.isEmpty() && this.name.toString() == FUNCTION_NAME
 
 val Meta.GenerateShallowSize: CliPlugin
     get() = "Generate shallowSize method" {
@@ -67,9 +67,8 @@ val Meta.GenerateShallowSize: CliPlugin
             },
             irClass { clazz ->
                 if (clazz.isData) {
-                    val function = clazz.functions.find { it.name.toString() == FUNCTION_NAME }
-                    require(function != null) { "shallowSize plugin cannot create a function body" }
-                    require(function.noFormalParameters()) {"$FUNCTION_NAME has formal parameters"}
+                    val function = clazz.functions.find { it.isPluginFunWithNoParameters() }
+                    require(function != null) { "the plugin did not find the $FUNCTION_NAME function" }
 
                     val builder = DeclarationIrBuilder(pluginContext, function.symbol)
                     val shallowSize = clazz.properties.map { it.backingField?.type?.byteSize() ?: 0 }.sum()
