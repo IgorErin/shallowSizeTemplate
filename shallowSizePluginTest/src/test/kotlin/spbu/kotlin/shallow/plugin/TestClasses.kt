@@ -6,8 +6,9 @@ data class BaseClass(val stringVal: String)
 
 internal data class InternalClass(var booleanVal: Boolean)
 
+@Suppress("SerialVersionUIDInSerializableClass")
 data class InheritInterfaces(val x: Int) : Serializable, Runnable {
-    override fun run() = TODO("Not yet implemented")
+    override fun run() = TODO()
 }
 
 open class Base(open val openIntVal: Int)
@@ -19,6 +20,7 @@ data class NoBackField(val charVal: Char = 'a') {
         get() = 0
 }
 
+@Suppress("UnusedPrivateMember")
 data class PrivateFields(val longVal: Long) {
     private val intValWithoutGet: Int = 0
 }
@@ -39,15 +41,16 @@ data class NullablePrimitives(
 
 data class JavaCharacter(val characterVal: Character)
 
+@Suppress("MagicNumber")
 data class NoExplicitType(val intVal: Int) {
     val longValWithoutGet = 10L
 }
-
+@Suppress("SerialVersionUIDInSerializableClass")
 interface BaseInterface {
     val intVal: Int
 }
 
+@Suppress("MagicNumber")
 data class OverrideFieldFromClass(override val openIntVal: Int) : Base(3)
 
 data class OverrideFieldFromInterface(override val intVal: Int) : BaseInterface
-

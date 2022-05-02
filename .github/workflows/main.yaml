@@ -1,0 +1,37 @@
+name: simple CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run build
+        run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Run detekt
+        run: ./gradlew detekt
+
+      - name: Upload detekt artifact from shallowSizePlugin
+        uses: actions/upload-artifact@v2
+        with:
+            name: DetektReportFromShallowSizePlugin
+            path: shallowSizePlugin/build/reports/detekt/detekt.txt
+            if-no-files-found: error
+
+      - name: Upload detekt artifact from shallowSizePluginTest
+        uses: actions/upload-artifact@v2
+        with:
+          name: DetektReportFromShallowSizePluginTest
+          path: shallowSizePluginTest/build/reports/detekt/detekt.txt
+          if-no-files-found: error
+
+      - name: Upload test artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: TestReport
+          path: shallowSizePluginTest/build/test-results/test
+          if-no-files-found: error
